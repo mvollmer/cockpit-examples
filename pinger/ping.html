@@ -29,7 +29,7 @@
         document.getElementById("ping").addEventListener("click", ping_run);
 
         function ping_run() {
-            var proc = cockpit.spawn(["ping", "-c", "4", address.value]);
+            var proc = cockpit.spawn(["pong", "-c", "4", address.value]);
             proc.done(ping_success);
             proc.stream(ping_output);
             proc.fail(ping_fail);
@@ -54,4 +54,3 @@
     </script>
 </body>
 </html>
-
