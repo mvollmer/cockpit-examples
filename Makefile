@@ -46,6 +46,6 @@ $(VM_IMAGE): cockpit rpm
 	cockpit/bots/image-customize -v -i cockpit -i `pwd`/cockpit-examples-0-1.*.noarch.rpm $(COCKPIT_TEST_IMAGE)
 
 check: $(VM_IMAGE)
-	@PYTHONPATH=cockpit/bots/machine TEST_IMAGE=$(VM_IMAGE) tests/check-pinger -v
+	@PYTHONPATH=cockpit/bots/machine TEST_IMAGE=$(VM_IMAGE) test/check-pinger -v
 
 .PHONY: default install dist rpm srpm check
