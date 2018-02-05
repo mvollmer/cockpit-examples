@@ -1,6 +1,6 @@
 COCKPIT_GIT=https://github.com/cockpit-project/cockpit.git
 COCKPIT_TEST_IMAGE=$(or $(TEST_OS),fedora-27)
-VM_IMAGE=$(CURDIR)/cockpit/test/images/$(COCKPIT_TEST_IMAGE)
+VM_IMAGE=$(CURDIR)/test/images/$(COCKPIT_TEST_IMAGE)
 
 # generate version number from the latest git tag; if the topmost commit is
 # tagged (at release time), just use that; if there are commits after that,
@@ -39,13 +39,19 @@ rpm: dist
 	find output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
 	rm -rf rpmbuild build output
 
-cockpit:
-	git clone --depth=1 $(COCKPIT_GIT)
+bots:
+	git fetch --depth=1 $(COCKPIT_GIT)
+	git checkout --force FETCH_HEAD -- bots/
+	# work around for https://github.com/cockpit-project/cockpit/pull/8595
+	for f in cloud-init.iso identity testvm.py; do if [ -L bots/machine/$$f ]; then \
+		rm bots/machine/$$f; git show FETCH_HEAD:test/common/$$f > bots/machine/$$f; \
+	fi; done
+	git reset bots
 
-$(VM_IMAGE): cockpit rpm
-	cockpit/bots/image-customize -v -i cockpit -i `pwd`/cockpit-examples-0-1.*.noarch.rpm $(COCKPIT_TEST_IMAGE)
+$(VM_IMAGE): rpm bots
+	./bots/image-customize -v -i cockpit -i `pwd`/cockpit-examples-0-1.*.noarch.rpm $(COCKPIT_TEST_IMAGE)
 
 check: $(VM_IMAGE)
-	@PYTHONPATH=cockpit/bots/machine TEST_IMAGE=$(VM_IMAGE) test/check-pinger -v
+	@PYTHONPATH=bots/machine TEST_IMAGE=$(VM_IMAGE) test/check-pinger -v
 
 .PHONY: default install dist rpm srpm check
