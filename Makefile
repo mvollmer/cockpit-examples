@@ -1,5 +1,5 @@
 COCKPIT_GIT=https://github.com/cockpit-project/cockpit.git
-COCKPIT_TEST_IMAGE=fedora-27
+COCKPIT_TEST_IMAGE=$(or $(TEST_OS),fedora-27)
 VM_IMAGE=$(CURDIR)/cockpit/test/images/$(COCKPIT_TEST_IMAGE)
 
 # generate version number from the latest git tag; if the topmost commit is
